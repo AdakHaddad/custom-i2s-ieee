@@ -1,0 +1,12 @@
+\section{Related Work}
+\label{sec:related}
+
+Prior FPGA I2S implementations demonstrate low-latency audio transport at rates up to 96\,kHz~\cite{sang_i2s_codec_2020} and instrumented interfaces on low-cost boards~\cite{kaviani_i2s_fpga_2017}.
+Most published designs focus on correct waveform generation in isolated RTL blocks.
+Fewer works document a complete path from custom peripheral through AXI SoC integration to interactive bare-metal software validation~\cite{lafosse_embedded_2018,sklyarov_axi_peripheral_2014,crockett_zynq_book_2014}.
+
+Hierarchical AXI-based SoCs on FPGA show that custom slaves can be attached modularly through interconnect fabrics~\cite{sklyarov_axi_peripheral_2014}.
+Clock-domain crossing (CDC) is critical in multi-clock audio systems~\cite{ginosar_metastability_2011}.
+The final design presented here operates entirely in the 100\,MHz \texttt{S\_AXI\_ACLK} domain, eliminating CDC on the PCM data path while using a STATUS toggle for firmware synchronization.
+
+Compared with vendor I2S cores that rely on FIFOs and AXI-Stream~\cite{amd_pg308_i2s_logicore}, this work emphasizes register-mapped programmed I/O, explicit shadow latching, and software-visible DDS rate control suitable for academic replication on a Basys3 platform.

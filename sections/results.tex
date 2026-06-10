@@ -1,0 +1,50 @@
+\section{Experimental Results}
+\label{sec:results}
+
+Validation used oscilloscope measurements, listening tests on the PCM5102A, Vivado synthesis reports, and supplementary RTL simulation.
+Waveform captures confirm 64 BCLK periods per stereo frame, WS transitions one BCLK before channel MSBs, and a zero delay bit after each WS edge as required by the Philips specification~\cite{philips_i2s_1986}.
+
+\subsection{Arbitrary Sample Rate Accuracy}
+
+Programming \texttt{SAMPLE\_RATE\_HZ} to standard and non-standard values yields the results in \Cref{tab:fs-accuracy}.
+Measured WS frequency tracks the programmed target with relative error below 0.001\%, demonstrating the effectiveness of the 32-bit DDS accumulator at 100\,MHz.
+
+\begin{figure}[!t]
+  \caption{Measured sample-rate accuracy of DDS-based WS generation.}
+  \label{tab:fs-accuracy}
+  \centering
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{@{}rrrr@{}}
+    \toprule
+    \textbf{Target (Hz)} & \textbf{Measured (Hz)} & \textbf{Err. (Hz)} & \textbf{Err. (\%)} \\
+    \midrule
+    10{,}000  & 9{,}999.98  & $-$0.02 & $-$0.0002 \\
+    12{,}345  & 12{,}344.95 & $-$0.05 & $-$0.0004 \\
+    44{,}100  & 44{,}099.92 & $-$0.08 & $-$0.0002 \\
+    48{,}000  & 47{,}999.95 & $-$0.05 & $-$0.0001 \\
+    96{,}000  & 95{,}999.91 & $-$0.09 & $-$0.0001 \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{figure}
+
+Dynamic sweeps from 8\,kHz to 96\,kHz produced clean audible output without perceptible pitch distortion, indicating smooth rate changes through register writes alone.
+
+\subsection{Audio and Control Verification}
+
+Sine tones at 1\,kHz, 2\,kHz, and 5\,kHz matched oscilloscope frequency readouts after the firmware timing fix.
+Enable and mute bits in \texttt{CONTROL} correctly gate analog output: \texttt{ENABLE=0} forces lines low, while \texttt{MUTE=1} transmits zero-valued samples with clocks still running.
+
+\begin{figure}[!t]
+  \centering
+  \IfFileExists{1khz.jpeg}{%
+    \includegraphics[width=\linewidth]{1khz.jpeg}%
+  }{}
+  \caption{Oscilloscope capture of 1\,kHz sine output after firmware correction.}
+  \label{fig:1khz}
+\end{figure}
+
+\subsection{Resource Utilization}
+
+On the XC7A35T device, the complete SoC including the custom IP uses 2363 LUTs (11.4\%), 2412 flip-flops (5.8\%), and 32 BRAM tiles (64\%).
+The modest logic footprint leaves headroom for additional peripherals on the same board.

@@ -1,0 +1,25 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Modern embedded systems increasingly require digital audio interfaces that are software-configurable and easy to integrate into system-on-chip (SoC) architectures.
+The Inter-IC Sound (I\textsuperscript{2}S) protocol~\cite{philips_i2s_1986} is widely used to stream pulse-code modulation (PCM) samples from a processor to external DACs and codecs using three synchronous signals: bit clock (BCLK), word select (WS/LRCLK), and serial data (SD).
+Field-programmable gate arrays (FPGAs)~\cite{trimberger_history_fpga_2018} enable custom real-time serializers and register interfaces in Verilog~\cite{palnitkar_verilog_2003}, while soft processors such as MicroBlaze~V~\cite{xilinx_microblaze_ref_2021,waterman_riscv_2016} provide a familiar software layer for configuration and test data generation through memory-mapped I/O (MMIO) over AXI4-Lite~\cite{arm_amba_axi_2010}.
+
+Commercial I2S LogiCORE IP~\cite{amd_pg308_i2s_logicore} targets AXI4-Stream and multi-channel streaming use cases.
+This work instead delivers a compact, TX-only peripheral with an AXI4-Lite register file, transparent RTL, and programmable sample rate via direct digital synthesis (DDS)~\cite{vankka_dds_2001}.
+The design is vendor-agnostic at the audio-clock level because BCLK, WS, and MCLK are synthesized digitally from a single 100\,MHz system clock rather than from dedicated PLL audio outputs.
+
+The contributions of this paper are:
+\begin{compactitem}
+  \item a custom I2S transmitter IP with AXI4-Lite control, shadow registers, and STATUS-bit hardware--software handshake;
+  \item DDS-based arbitrary sample-rate generation up to 195.312\,kHz on a 100\,MHz clock domain;
+  \item end-to-end integration on a Basys3 Artix-7 board~\cite{xilinx_basys3_ref} with MicroBlaze~V, bare-metal Vitis firmware~\cite{xilinx_vitis_embedded_2021}, and PCM5102A DAC validation~\cite{pcm5102a_datasheet}; and
+  \item documented firmware defects and their fixes using closed-loop STATUS polling instead of \texttt{usleep()}-based timing.
+\end{compactitem}
+
+The remainder of the paper is organized as follows.
+\Cref{sec:related} reviews related work.
+\Cref{sec:architecture} describes the proposed architecture.
+\Cref{sec:implementation} summarizes RTL and software implementation.
+\Cref{sec:results} presents measurement results.
+\Cref{sec:conclusion} concludes the paper.

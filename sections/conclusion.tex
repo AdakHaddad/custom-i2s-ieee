@@ -1,0 +1,13 @@
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+This paper presented a custom AXI4-Lite I2S transmitter for a MicroBlaze~V SoC on Basys3.
+The IP generates Philips-format stereo audio with DDS-based arbitrary sample rates, shadow-register sample integrity, and STATUS-driven firmware handshake.
+Hardware measurements confirm correct I2S timing and sub-0.001\% sample-rate accuracy; DAC listening tests verify functional audio output.
+
+Future extensions include TX FIFOs with watermark interrupts, DMA-based streaming for long playback, optional RX or TDM modes, and Linux/ASoC integration.
+For applications requiring sub-100\,ppm clock accuracy, an external audio PLL may complement the digital DDS approach.
+
+\section*{Acknowledgment}
+
+The authors thank Ir.\ Agus Bejo, S.T., M.Eng., D.Eng., IPM.\ and Ir.\ Wahyu Dewanto, M.T.\ for supervising the undergraduate thesis from which this paper is derived.

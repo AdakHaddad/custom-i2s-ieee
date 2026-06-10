@@ -1,0 +1,50 @@
+\section{Implementation}
+\label{sec:implementation}
+
+\subsection{RTL Design}
+
+The IP was implemented in Verilog and packaged for Vivado IP Integrator~\cite{xilinx_vivado_design_suite_2021}.
+The AXI4-Lite slave decodes single 32-bit read/write transactions to the four registers.
+DDS logic in \texttt{i2s\_dds\_slave\_lite\_v1\_0\_S00\_AXI.v} computes \texttt{bclk\_toggle\_rate\_hz = sample\_rate\_hz << 7} (i.e., $F_s \times 128$) and toggles BCLK when the phase sum reaches 100{,}000{,}000.
+
+\begin{lstlisting}[language=Verilog, caption={DDS phase accumulator for BCLK generation.}, label={lst:dds}]
+wire [31:0] bclk_toggle_rate_hz = {sample_rate_sync, 7'b0};
+wire bclk_phase_wrap = (bclk_phase_sum >= AXI_CLK_HZ);
+
+always @(posedge S_AXI_ACLK) begin
+    if (bclk_phase_wrap) begin
+        bclk_phase_acc_q <= bclk_phase_sum - AXI_CLK_HZ;
+        bclk_q <= !bclk_q;
+    end else begin
+        bclk_phase_acc_q <= bclk_phase_sum;
+    end
+end
+\end{lstlisting}
+
+At each stereo frame boundary the serializer copies \texttt{slv\_reg0}/\texttt{slv\_reg1} into shadow registers and flips the latch-status bit exported through \texttt{STATUS}.
+
+\subsection{SoC Integration and Constraints}
+
+The block design connects MicroBlaze~V, AXI SmartConnect, local BRAM, Clocking Wizard (100\,MHz system clock), AXI UARTLite, and the custom I2S IP.
+Pin constraints map \texttt{i2s\_mclk}, \texttt{i2s\_bclk}, \texttt{i2s\_ws}, and \texttt{i2s\_data} to PMOD pins for the PCM5102A module.
+The hardware platform is exported to Vitis as an \texttt{.xsa} file for bare-metal application development.
+
+\subsection{Firmware}
+
+The test application (\texttt{helloworld.c}) configures \texttt{CONTROL}, generates sine or square test tones with a software DDS phase accumulator, and streams samples using STATUS polling:
+
+\begin{lstlisting}[language=C, caption={STATUS-polling sample loop.}, label={lst:firmware}]
+while (1) {
+    while (frame_status_bit() == g_last_frame_bit) {
+        if (!XUartLite_IsReceiveEmpty(STDIN_BASEADDRESS))
+            handle_key(XUartLite_RecvByte(STDIN_BASEADDRESS));
+    }
+    g_last_frame_bit = frame_status_bit();
+    stream_software_dds_sample();
+}
+\end{lstlisting}
+
+Interactive UART commands adjust enable, mute, sample width, sample rate, and tone frequency at runtime.
+Parameter clamping in software enforces safe DDS limits before writing \texttt{CONTROL}.
+
+During hardware bring-up, three firmware bugs were identified and fixed without RTL changes: (i)~a bit mask that corrupted sample sign, (ii)~incorrect 32-bit sample justification, and (iii)~inaccurate \texttt{usleep()}-based pacing replaced by STATUS polling as shown in \Cref{lst:firmware}.
