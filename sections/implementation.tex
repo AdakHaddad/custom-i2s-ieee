@@ -26,7 +26,7 @@ At each stereo frame boundary the serializer copies \texttt{slv\_reg0}/\texttt{s
 \subsection{SoC Integration and Constraints}
 
 The block design connects MicroBlaze~V, AXI SmartConnect, local BRAM, Clocking Wizard (100\,MHz system clock), AXI UARTLite, and the custom I2S IP.
-Pin constraints map \texttt{i2s\_mclk}, \texttt{i2s\_bclk}, \texttt{i2s\_ws}, and \texttt{i2s\_data} to PMOD pins for the PCM5102A module.
+Pin constraints map \texttt{i2s\_bclk}, \texttt{i2s\_ws}, and \texttt{i2s\_data} to PMOD pins for the PCM5102A module.
 The hardware platform is exported to Vitis as an \texttt{.xsa} file for bare-metal application development.
 
 \subsection{Firmware}

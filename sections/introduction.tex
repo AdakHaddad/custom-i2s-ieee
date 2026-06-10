@@ -7,7 +7,7 @@ Field-programmable gate arrays (FPGAs)~\cite{trimberger_history_fpga_2018} enabl
 
 Commercial I2S LogiCORE IP~\cite{amd_pg308_i2s_logicore} targets AXI4-Stream and multi-channel streaming use cases.
 This work instead delivers a compact, TX-only peripheral with an AXI4-Lite register file, transparent RTL, and programmable sample rate via direct digital synthesis (DDS)~\cite{vankka_dds_2001}.
-The design is vendor-agnostic at the audio-clock level because BCLK, WS, and MCLK are synthesized digitally from a single 100\,MHz system clock rather than from dedicated PLL audio outputs.
+The design is vendor-agnostic at the audio-clock level because BCLK and WS (and optionally MCLK) are synthesized digitally from a single 100\,MHz system clock rather than from dedicated PLL audio outputs.
 
 The contributions of this paper are:
 \begin{compactitem}
